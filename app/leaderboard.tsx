@@ -19,7 +19,7 @@ type Board = {
 };
 type Modal = { kind: "vote"; id: number } | { kind: "rules" } | { kind: "wallet" };
 
-const pageSize = 12;
+const pageSize = 30;
 const dateFormat = new Intl.DateTimeFormat("zh-CN", {
   month: "long", day: "numeric", weekday: "long", timeZone: "Asia/Shanghai",
 });
@@ -249,11 +249,7 @@ export default function Leaderboard({ commentsAvailable, tagMode, viewSuffix }: 
               </span>
               <MemberAvatar className="member-avatar" member={row.id} width="58" height="58"/>
               <div className="member-info"><h3>{profilesAvailable
-                ? <a href={profile}>群友 <b>{id}</b></a> : <>群友 <b>{id}</b></>}</h3><p>{board ? row.votes : "—"} 票</p>
-                {labels.length > 0 && <a className="board-tags" href={profile + "#impressions-title"} aria-label={"查看群友 " + id + " 的印象标签"}>
-                  <span>#{labels[0]}</span>{labels.length > 1 && <small>+{labels.length - 1}</small>}
-                </a>}
-              </div>
+                ? <a href={profile}>群友 <b>{id}</b></a> : <>群友 <b>{id}</b></>}</h3><p>{board ? row.votes : "—"} 票</p></div>
               {profilesAvailable && <a className="comment-link" href={profile + (commentsAvailable ? "#comments" : "#impressions-title")} aria-label={"查看群友 " + id + (commentsAvailable ? " 的评论" : " 的标签")}>
                 {commentsAvailable ? <MessageCircle size={16}/> : <Tags size={16}/>}<span>{commentsAvailable ? "评论" : "标签"}</span>
               </a>}
@@ -263,6 +259,9 @@ export default function Leaderboard({ commentsAvailable, tagMode, viewSuffix }: 
                 onClick={() => open(mine ? { kind: "wallet" } : { kind: "vote", id: row.id })}>
                 {mine ? <Check size={15}/> : <Plus size={15}/>} {mine ? "已投" : "投票"}
               </button>
+              {labels.length > 0 && <a className="board-tags" href={profile + "#impressions-title"}>
+                {labels.map(label => <span key={label}>#{label}</span>)}
+              </a>}
             </li>;
           })}
         </ol>}
@@ -282,15 +281,16 @@ export default function Leaderboard({ commentsAvailable, tagMode, viewSuffix }: 
       {modal.kind === "rules" ? <>
         <dl className="rules-list">
           <dt>每天最多投给 {dailyVoteLimit} 位群友</dt><dd>同一浏览器每天有 {dailyVoteLimit} 票，可以分开投。每位群友当天限投一次，确认后无法改票。</dd>
-          <dt>北京时间零点恢复</dt><dd>网站用 Cookie 记住这个浏览器的选择。点击首页的选票，可以查看剩余票数和今天支持过的群友。</dd>
+          <dt>北京时间零点恢复</dt><dd>投票 Cookie 用来识别这个浏览器，到下一个北京时间零点失效。点击首页的选票可以查看今天支持过的群友。</dd>
           <dt>排名与并列</dt><dd>今日榜统计当天的票数，累计榜保留历次投票。同票并列，零票群友按编号排列。</dd>
         </dl>
         <button className="primary" onClick={close}>知道了</button>
       </> : !board ? <p className="dialog-intro">{loadError ? "暂时无法读取选票，请稍后重试。" : "正在读取选票…"}</p> :
         target !== null ? <form onSubmit={event => { event.preventDefault(); submit(); }}>
           <div className="chosen-member"><MemberAvatar member={target}/><div><b>群友 {idText(target)}</b><p>投出后今天还剩 {remaining - 1} 票。</p></div></div>
+          <p className="ballot-notice">投票会保存一个 Cookie，用于限制这个浏览器每天最多投给 {dailyVoteLimit} 位不同的群友。它在下一个北京时间零点到期。</p>
           {error && <p className="form-error" role="alert">{error}</p>}
-          <div className="dialog-actions"><button type="button" className="secondary" disabled={busy} onClick={close}>再看看</button><button className="primary" disabled={busy} type="submit">{busy ? "提交中…" : "确认投票"}</button></div>
+          <div className="dialog-actions"><button type="button" className="secondary" disabled={busy} onClick={close}>再看看</button><button className="primary" disabled={busy} type="submit">{busy ? "提交中…" : "同意并投票"}</button></div>
         </form> : <>
           <p className="dialog-intro">今天还剩 <b>{remaining}</b> 票。{myVotes.length ? "你今天已支持的群友" : "每票可以支持一位不同的群友。"}</p>
           {myVotes.length > 0 && <ul className="wallet-choices">{myVotes.map(id =>

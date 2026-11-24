@@ -8,8 +8,9 @@
 | --- | --- | --- |
 | 网站源码、数据库迁移、Docker 配置 | 本仓库 | 在分支开发，通过 PR 合入 `main`，选定版本部署到腾讯云 |
 | 群友印象标签 | `public/member-tags.txt` | 通过 PR 增删，每行一个编号和一个标签，合并后网站自动读取 |
+| 个性签名和自选头像 | `profiles/三位编号.md` 和 `profiles/avatars/` | 在群友主页点「编辑签名和头像」，将修改放在同一个 PR，合并后自动更新 |
 | 评论 | 本仓库的 GitHub Discussions | giscus 使用 GitHub 登录发言，维护者在对应讨论处理举报和下架 |
-| 头像、实际票数、运行配置 | 部署机器的图片目录、SQLite 数据卷和环境变量 | 单独备份，源码中提供通用头像 |
+| 原始群头像、实际票数、运行配置 | 部署机器的图片目录、SQLite 数据卷和环境变量 | 单独备份，源码中提供通用头像 |
 
 ### 给群友提标签
 
@@ -18,6 +19,8 @@
 维护者在 `main` 上开启 **Require a pull request before merging** 并应用到管理员。群友通过 fork 提议，你保留合并权限。`check-member-tags` 校验编号、标签长度和重复项，首次运行后可以将它设为必需的状态检查。是否采用这个标签由维护者审核。若只有一位维护者，要求每个 PR 都收到一位独立批准会让维护者自己的 PR 也需要另一人审批。[GitHub 分支保护](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 
 ### 运行
+
+群友资料的 Markdown 格式和头像上传方法见[填写说明](profiles/README.md)。维护者在合并前核对资料归属。榜单每页显示 30 位群友，投票 Cookie 到下一个北京时间零点失效。
 
 在项目根目录运行 `docker compose up -d --build vote` 可启动带 SQLite 的服务，默认监听 `http://127.0.0.1:3180` 并自动应用数据库迁移。要显示群友原头像，在构建时将服务器上已有的 `001.png` 至 `318.png` 放在 `public/avatars/`。Git 会忽略该目录。没有对应图片时，页面使用通用头像。
 

@@ -77,7 +77,7 @@ h1, h2, h3, p, ol, dl, dd { margin: 0; }
 .list-summary > span { font-size: 12px; color: var(--muted); }
 .mid-dot { padding-inline: 6px; }
 .members { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; row-gap: 10px; list-style: none; padding: 0; }
-.member { display: flex; align-items: center; min-width: 0; gap: 13px; padding: 13px 17px 13px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.member { display: flex; flex-wrap: wrap; align-content: center; align-items: center; min-width: 0; gap: 13px; padding: 13px 17px 13px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 .member.my-choice { border-color: #82a772; background: #f3f9ed; }
 .rank { min-width: 30px; font: 600 14px/1.8 var(--numbers); text-align: center; color: #8a978a; }
 .rank.leading { background: #ecf4dc; color: var(--green); border-radius: 7px; }
@@ -87,9 +87,9 @@ h1, h2, h3, p, ol, dl, dd { margin: 0; }
 .member-info h3 b { font-family: var(--numbers); font-size: 1.11em; font-weight: 700; letter-spacing: -.025em; }
 .member-info p { margin-top: 3px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .member-info h3 a:hover { text-decoration: underline; text-underline-offset: 3px; }
-.board-tags { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; margin-top: 4px; color: var(--green); font-size: 12px; }
-.board-tags span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-radius: 5px; background: #eaf1df; padding: 1px 5px; }
-.board-tags small { flex: none; font: 12px var(--numbers); }
+.board-tags { flex: 0 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; color: var(--green); font-size: 14px; }
+.board-tags span { max-width: 100%; overflow-wrap: anywhere; border-radius: 6px; background: #eaf1df; padding: 2px 7px; }
+.ballot-notice { margin: 0 0 16px; color: var(--muted); font-size: 14px; line-height: 1.6; }
 .vote-button { min-height: 44px; min-width: 72px; flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 7px 13px; font-size: 14px; font-weight: 680; color: var(--green); background: #edf4e5; border: 1px solid #d2dfc7; border-radius: 10px; }
 .vote-button.cast { background: var(--green); border-color: var(--green); color: white; }
 .vote-button:disabled { color: #748071; background: #f3f5ef; border-color: #e2e6dd; }

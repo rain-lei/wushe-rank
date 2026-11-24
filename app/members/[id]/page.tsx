@@ -7,6 +7,7 @@ import { idText } from "@/lib/member-display";
 import { validMember } from "@/lib/voting-common";
 import CommentThread from "../comment-thread";
 import ImpressionTags from "../impression-tags";
+import { MemberSignature } from "../member-profiles";
 import "../comments.css";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +37,7 @@ export default async function MemberPage({ params, searchParams }: Props) {
         <MemberAvatar member={id} width="76" height="76"/>
         <div><p>群友主页</p><h1>群友 <b>{idText(id)}</b></h1></div>
       </header>
+      <MemberSignature id={idText(id)} service={tags}/>
       <ImpressionTags key={"tags-" + id} id={idText(id)} service={tags}/>
       <div id="comments"><CommentThread key={id} member={id} service={comments}/></div>
     </main>

@@ -1,9 +1,16 @@
 import { queryVotes } from "#vote-storage";
 import { dailyVoteLimit, json, makeCookie, memberCount, mutationAllowed, readCookie, readObject, sha256, validMember } from "./voting-common";
-import { beijingDay } from "./voting-day";
+import { beijingDay, nextBeijingMidnight } from "./voting-day";
 
 const cookieName = "wushe_browser";
-const cookieLifetime = 365 * 24 * 60 * 60;
+
+function browserToken(value: string, day: string) {
+  return value.startsWith(day + ".") ? value.slice(day.length + 1) : value;
+}
+
+function dailyCookie(req: Request, day: string, token: string) {
+  return makeCookie(req, cookieName, day + "." + token, nextBeijingMidnight(day));
+}
 
 async function browserDigest(token: string) {
   return /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(token) ? sha256(token) : null;
@@ -20,24 +27,29 @@ async function browserVoter(token: string) {
 
 export async function startBrowserSession(req: Request) {
   if (!mutationAllowed(req)) return json({ error: "请从榜单页面重新投票。" }, 403);
-  let token = readCookie(req, cookieName);
+  const day = beijingDay();
+  let token = browserToken(readCookie(req, cookieName), day);
   if (await browserVoter(token) === null) {
     token = crypto.randomUUID();
     await queryVotes(["INSERT INTO browser_voters (token_hash) VALUES (?)", await sha256(token)]);
   }
-  return json({ ok: true }, 200, makeCookie(req, cookieName, token, cookieLifetime));
+  return json({ ok: true }, 200, dailyCookie(req, day, token));
 }
 
 export async function board(req: Request) {
   const day = beijingDay();
-  const hash = await browserDigest(readCookie(req, cookieName));
+  const received = readCookie(req, cookieName);
+  const token = browserToken(received, day);
+  const hash = await browserDigest(token);
   const [counts, own] = await queryVotes(
     ["SELECT candidate, COUNT(*) AS total, SUM(CASE WHEN day = ? THEN 1 ELSE 0 END) AS today FROM votes GROUP BY candidate", day],
     ["SELECT candidate FROM votes WHERE day = ? AND voter = (SELECT -id FROM browser_voters WHERE token_hash = ?) ORDER BY rowid", day, hash],
   );
+  // Shorten an existing year-long cookie on the browser's next visit, preserving today's ballot.
+  const cookie = hash && received === token && day === beijingDay() ? dailyCookie(req, day, token) : undefined;
   return json({
     day, counts, members: memberCount, myVotes: own.map(row => row.candidate), myVote: own[0]?.candidate ?? null,
-  });
+  }, 200, cookie);
 }
 
 export async function saveBallot(req: Request) {
@@ -45,10 +57,10 @@ export async function saveBallot(req: Request) {
   const candidate = (await readObject(req))?.candidate;
   if (!validMember(candidate)) return json({ error: "请先选择一位群友。" }, 400);
 
-  const voter = await browserVoter(readCookie(req, cookieName));
+  const day = beijingDay();
+  const voter = await browserVoter(browserToken(readCookie(req, cookieName), day));
   if (voter === null) return json({ error: "请允许此网站保存 Cookie，再确认投票。" }, 428);
 
-  const day = beijingDay();
   const [inserted, own] = await queryVotes(
     // The count and the insert share a single SQLite write statement. Concurrent
     // tabs cannot both reserve the final slot. The primary key rejects repeats.

@@ -1,4 +1,4 @@
-name: 群友标签
+name: 群友标签与资料
 on: [pull_request]
 permissions:
   contents: read
@@ -13,3 +13,4 @@ jobs:
         with:
           node-version: 24
       - run: node scripts/check-member-tags.mjs
+      - run: node scripts/check-member-profiles.mjs
