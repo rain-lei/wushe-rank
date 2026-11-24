@@ -15,9 +15,9 @@ export function readCookie(req: Request, name: string) {
   return req.headers.get("cookie")?.split(";").map(x => x.trim()).find(x => x.startsWith(prefix))?.slice(prefix.length) ?? "";
 }
 
-export function makeCookie(req: Request, name: string, value: string, maxAge: number) {
+export function makeCookie(req: Request, name: string, value: string, expiresAt: number) {
   const secure = new URL(req.url).protocol === "https:" ? "; Secure" : "";
-  return name + "=" + value + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=" + maxAge + secure;
+  return name + "=" + value + "; Path=/; HttpOnly; SameSite=Lax; Expires=" + new Date(expiresAt).toUTCString() + secure;
 }
 
 export function mutationAllowed(req: Request) {
